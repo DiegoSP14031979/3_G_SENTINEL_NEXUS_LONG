@@ -1,0 +1,36 @@
+name: Coinbase Spot Long Sentinel Monitor
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # Ejecución diaria automática a las 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update-portfolio:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Execute Fetch & Analytics Script
+        run: python fetch_coinbase.py
+
+      - name: Commit & Push Portfolio Updates
+        run: |
+          git config --global user.name "G-SENTINEL Bot"
+          git config --global user.email "bot@g-sentinel.io"
+          git add coinbase_portfolio.json historial_coinbase.json
+          git commit -m "CHORE(data): Auto-update Coinbase Spot DCA Portfolio Metrics [skip ci]" || exit 0
+          git push
