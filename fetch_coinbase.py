@@ -2,9 +2,7 @@ import requests
 import json
 import datetime
 import os
-import math
 
-# Configuración G-CORE basada en el estado real de Coinbase e Inversiones 2026
 PORTFOLIO_CONFIG = {
     "currency": "EUR",
     "dca_end_date": "2026-11-02",
@@ -96,15 +94,15 @@ def fetch_market_data():
 
 def calculate_smart_dca_multiplier(fng_value):
     if fng_value < 25:
-        return 1.50, "ACCUMULATE AGGRESSIVE (150%) - Extreme Fear Zone"
+        return 1.50, "ACCUMULATE AGGRESSIVE (150%)"
     elif fng_value < 40:
-        return 1.25, "ACCUMULATE MODERATE (125%) - Subdued Market"
+        return 1.25, "ACCUMULATE MODERATE (125%)"
     elif fng_value <= 65:
-        return 1.00, "STANDARD DCA (100%) - Balanced Zone"
+        return 1.00, "STANDARD DCA (100%)"
     elif fng_value <= 78:
-        return 0.85, "PRUDENT DCA (85%) - Elevated Momentum"
+        return 0.85, "PRUDENT DCA (85%)"
     else:
-        return 0.70, "DEFENSIVE DCA (70%) - Overheated Zone"
+        return 0.70, "DEFENSIVE DCA (70%)"
 
 def calculate_metrics():
     prices, fng_index = fetch_market_data()
@@ -139,7 +137,7 @@ def calculate_metrics():
             "invested_eur": round(invested_val, 2),
             "unrealized_pnl_eur": round(unrealized_pnl, 2),
             "unrealized_pnl_pct": round(unrealized_pnl_pct, 2),
-            "dca_monthly_base": config["dca_monthly_budget"],
+            "dca_monthly": config["dca_monthly_budget"],
             "dca_weight": config["dca_weight_pct"],
             "staking": config["staking_enabled"],
             "staking_apy": config["staking_apy"],
@@ -151,13 +149,13 @@ def calculate_metrics():
         asset["current_weight_pct"] = round(weight_pct, 2)
 
         pnl = asset["unrealized_pnl_pct"]
-        if asset["dca_monthly_base"] > 0:
+        if asset["dca_monthly"] > 0:
             if pnl > 30.0:
-                advice = f"HOLD / DCA STANDARD: Rentabilidad destacada (+{pnl:.1f}%). Mantener asignación."
+                advice = f"HOLD / DCA STANDARD: Rentabilidad (+{pnl:.1f}%). Mantener orden."
             elif pnl < -15.0:
-                advice = f"BUY OPPORTUNITY: Cotizando {-pnl:.1f}% por debajo del coste medio."
+                advice = f"BUY OPPORTUNITY: Cotizando {-pnl:.1f}% por debajo de Break-even."
             else:
-                advice = f"DCA ACTIVE: Acumulación constante cerca de Break-even ({asset['cost_basis']} €)."
+                advice = f"DCA ACTIVE: Acumulación constante cerca de coste medio ({asset['cost_basis']} €)."
         else:
             advice = "STAKING PASSIVE: DCA pausado. Generando rendimientos pasivos."
 
@@ -231,7 +229,7 @@ def calculate_metrics():
     with open("coinbase_portfolio.json", "w", encoding="utf-8") as f:
         json.dump(portfolio_data, f, indent=4, ensure_ascii=False)
 
-    print("[SUCCESS] Coinbase Smart-DCA Portfolio JSON compilado.")
+    print("[SUCCESS] Coinbase Smart-DCA Portfolio JSON compilado con éxito.")
 
 if __name__ == "__main__":
     calculate_metrics()
