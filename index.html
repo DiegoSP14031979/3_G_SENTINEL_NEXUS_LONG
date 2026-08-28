@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-SENTINEL // PATA 3: NEXUS LONG (COINBASE)</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-base: #07090e;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --bg-card-hover: rgba(26, 38, 66, 0.85);
+            --border-cyan: #00f0ff;
+            --border-dim: rgba(0, 240, 255, 0.2);
+            --neon-cyan: #00f0ff;
+            --neon-green: #00ff66;
+            --neon-amber: #ffaa00;
+            --neon-red: #ff0055;
+            --neon-purple: #b026ff;
+            --text-main: #e2e8f0;
+            --text-muted: #64748b;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-title: 'Rajdhani', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(176, 38, 255, 0.05) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* Header Cyberpunk */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-dim);
+            margin-bottom: 28px;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .badge-pata {
+            background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(176,38,255,0.2));
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 6px 14px;
+            font-family: var(--font-title);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+        }
+
+        h1 {
+            font-family: var(--font-title);
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+        }
+
+        .sys-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 102, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 255, 102, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 102, 0); }
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-left: 4px solid var(--neon-cyan);
+            padding: 20px;
+            border-radius: 4px;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--neon-cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.15);
+        }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .kpi-sub {
+            font-size: 0.85rem;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        .pos { color: var(--neon-green); }
+        .neg { color: var(--neon-red); }
+
+        /* Main Dashboard Layout */
+        .dashboard-main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-main { grid-template-columns: 1fr; }
+        }
+
+        .panel-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: 4px;
+            padding: 22px;
+            position: relative;
+        }
+
+        .panel-title {
+            font-family: var(--font-title);
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px dashed var(--border-dim);
+            padding-bottom: 10px;
+        }
+
+        /* DCA Alert Matrix Box */
+        .dca-matrix {
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .dca-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .dca-badge {
+            background: var(--neon-amber);
+            color: #000;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 2px;
+            letter-spacing: 1px;
+        }
+
+        .dca-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .dca-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+            width: 50%;
+        }
+
+        /* Asset Breakdown Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        th {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.75rem;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover td {
+            background: rgba(0, 240, 255, 0.04);
+        }
+
+        .asset-tag {
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .staking-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 2px;
+            background: rgba(176, 38, 255, 0.2);
+            color: var(--neon-purple);
+            border: 1px solid var(--neon-purple);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-dim);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="brand-container">
+            <div class="badge-pata">PATA 3</div>
+            <div>
+                <h1>NEXUS LONG // COINBASE SPOT</h1>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">G-SENTINEL QUANTITATIVE MONITORING ECOSYSTEM</div>
+            </div>
+        </div>
+        <div class="sys-status">
+            <div class="pulse-dot"></div>
+            <span>CONEXIÓN G-CORE: ACTIVA</span>
+            <span style="margin: 0 8px;">|</span>
+            <span id="last-update">UTC: Live</span>
+        </div>
+    </header>
+
+    <!-- Top KPI Cards -->
+    <section class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label"><i class="fa-solid fa-wallet"></i> PATRIMONIO TOTAL SPOT</div>
+            <div class="kpi-value" id="kpi-total-val">3.303,03 €</div>
+            <div class="kpi-sub pos" id="kpi-pnl">+335,16 € (+11,29%)</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label"><i class="fa-solid fa-chart-line"></i> RENTABILIDAD TEMPORAL</div>
+            <div class="kpi-value" id="kpi-mtd">+2,40%</div>
+            <div class="kpi-sub" style="color: var(--neon-cyan);">MTD | YTD Est: +14,85%</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label"><i class="fa-solid fa-calendar-check"></i> CICLOS DCA APLICADOS</div>
+            <div class="kpi-value" id="kpi-dca-cycles">3 / 6</div>
+            <div class="kpi-sub" style="color: var(--text-muted);">JUN 2026 - NOV 2026</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> INVERSIÓN MENSUAL DCA</div>
+            <div class="kpi-value">458,76 €</div>
+            <div class="kpi-sub" style="color: var(--neon-amber);">Próximo DCA: 02 SEPT 2026</div>
+        </div>
+    </section>
+
+    <!-- Main Section -->
+    <div class="dashboard-main">
+        <!-- Asset Matrix & Chart -->
+        <div class="panel-box">
+            <div class="panel-title">
+                <span><i class="fa-solid fa-layer-group"></i> DESGLOSE DE POSICIONES Y BREAK-EVEN</span>
+                <span style="font-size: 0.8rem; color: var(--neon-cyan);">Efectivo Euro: 0,13 €</span>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ACTIVO</th>
+                            <th>BALANCE</th>
+                            <th>PRECIO MEDIO</th>
+                            <th>PRECIO ACTUAL</th>
+                            <th>VALOR (€)</th>
+                            <th>PNL NO REALIZADO</th>
+                            <th>ASIGNACIÓN DCA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assets-table-body">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <canvas id="accumulationChart" height="110"></canvas>
+            </div>
+        </div>
+
+        <!-- DCA Advisory & System Controls -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="panel-box">
+                <div class="panel-title">
+                    <span><i class="fa-solid fa-clock-rotate-left"></i> MATRIZ DE CONTROL DCA</span>
+                </div>
+                
+                <div class="dca-matrix">
+                    <div class="dca-header">
+                        <span style="font-weight: 700; font-size: 0.85rem;">PROGRAMACIÓN RECURRENTE</span>
+                        <span class="dca-badge">DÍA 2 DE CADA MES</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">
+                        Plan activo hasta <strong>02/11/2026</strong>. Objetivo: Acumulación disciplinada en Coinbase Spot.
+                    </div>
+                    
+                    <div class="dca-progress-bar">
+                        <div class="dca-progress-fill"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                        <span>Jun 2026 (Inicio)</span>
+                        <span>Nov 2026 (Fin)</span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-dim); padding: 14px; border-radius: 4px;">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 6px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> ASESORÍA DE EJECUCIÓN PRÓXIMA
+                    </div>
+                    <ul style="font-size: 0.78rem; color: var(--text-main); padding-left: 18px; line-height: 1.5;">
+                        <li><strong>BTC (40%):</strong> €183,50 → Precio actual por encima de Break-even (+13,6%). Mantener orden automatizada.</li>
+                        <li><strong>ETH (30%):</strong> €137,63 → Cotizando en zona óptima de acumulación sobre Break-even (+20,3%).</li>
+                        <li><strong>SOL (20%):</strong> €91,75 → Mantener DCA activo en staking (100% en staking).</li>
+                        <li><strong>LINK (10%):</strong> €45,88 → Fuerte rendimiento acumulado (+46,2%).</li>
+                        <li><strong>DOT (0%):</strong> Pausado sin capital incremental. 100% en staking activo.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="panel-box">
+                <div class="panel-title">
+                    <span><i class="fa-solid fa-shield-halved"></i> AUDITORÍA DE SALUD G-CORE</span>
+                </div>
+                <div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Estrategia:</span>
+                        <span>SPOT DCA LONG</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Custodia / Broker:</span>
+                        <span>Coinbase Custody</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Staking Integrado:</span>
+                        <span style="color: var(--neon-purple);">DOT / ETH / SOL (100%)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Frecuencia Auto-Sync:</span>
+                        <span>Diaria 06:00 UTC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        G-SENTINEL ECOSYSTEM v4.2 // PATA 3: 3_G_SENTINEL_NEXUS_LONG // PROPRIETARY QUANT SYSTEM
+    </footer>
+
+    <script>
+        // Load data dynamically
+        async function loadPortfolioData() {
+            try {
+                const response = await fetch('coinbase_portfolio.json');
+                const data = await response.json();
+                renderUI(data);
+            } catch (err) {
+                console.warn("Could not load coinbase_portfolio.json, using baseline state.", err);
+                renderUI(getFallbackData());
+            }
+        }
+
+        function renderUI(data) {
+            document.getElementById('last-update').innerText = "UPDATED: " + data.timestamp;
+            document.getElementById('kpi-total-val').innerText = data.total_value_eur.toLocaleString('es-ES', {minimumFractionDigits: 2}) + " €";
+            
+            const pnlElem = document.getElementById('kpi-pnl');
+            const sign = data.net_pnl_eur >= 0 ? "+" : "";
+            pnlElem.innerText = `${sign}${data.net_pnl_eur.toLocaleString('es-ES', {minimumFractionDigits: 2})} € (${sign}${data.net_pnl_pct}%)`;
+            pnlElem.className = "kpi-sub " + (data.net_pnl_eur >= 0 ? "pos" : "neg");
+
+            document.getElementById('kpi-mtd').innerText = (data.mtd_pct >= 0 ? "+" : "") + data.mtd_pct + "%";
+            document.getElementById('kpi-dca-cycles').innerText = `${data.dca_info.executed_cycles} / ${data.dca_info.total_cycles}`;
+
+            // Render Table
+            const tbody = document.getElementById('assets-table-body');
+            tbody.innerHTML = '';
+            data.assets.forEach(asset => {
+                const tr = document.createElement('tr');
+                const pnlClass = asset.unrealized_pnl_eur >= 0 ? 'pos' : 'neg';
+                const pnlSign = asset.unrealized_pnl_eur >= 0 ? '+' : '';
+                
+                tr.innerHTML = `
+                    <td>
+                        <div class="asset-tag">
+                            ${asset.symbol} 
+                            ${asset.staking ? '<span class="staking-badge">STAKING</span>' : ''}
+                        </div>
+                    </td>
+                    <td>${asset.balance.toFixed(4)}</td>
+                    <td>${asset.cost_basis.toLocaleString('es-ES', {minimumFractionDigits: 2})} €</td>
+                    <td>${asset.current_price.toLocaleString('es-ES', {minimumFractionDigits: 2})} €</td>
+                    <td><strong>${asset.current_value_eur.toLocaleString('es-ES', {minimumFractionDigits: 2})} €</strong></td>
+                    <td class="${pnlClass}">${pnlSign}${asset.unrealized_pnl_eur.toLocaleString('es-ES', {minimumFractionDigits: 2})} € (${pnlSign}${asset.unrealized_pnl_pct}%)</td>
+                    <td>${asset.dca_monthly > 0 ? asset.dca_monthly.toFixed(2) + ' € (' + asset.dca_weight + '%)' : '0,00 € (Pausado)'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            initChart(data.assets);
+        }
+
+        function initChart(assets) {
+            const ctx = document.getElementById('accumulationChart').getContext('2d');
+            const labels = assets.map(a => a.symbol);
+            const values = assets.map(a => a.current_value_eur);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Valor Actual en Cartera (€)',
+                        data: values,
+                        backgroundColor: [
+                            'rgba(255, 170, 0, 0.7)',
+                            'rgba(0, 240, 255, 0.7)',
+                            'rgba(0, 255, 102, 0.7)',
+                            'rgba(176, 38, 255, 0.7)',
+                            'rgba(255, 0, 85, 0.7)'
+                        ],
+                        borderColor: [
+                            '#ffaa00',
+                            '#00f0ff',
+                            '#00ff66',
+                            '#b026ff',
+                            '#ff0055'
+                        ],
+                        borderWidth: 1.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'DISTRIBUCIÓN DEL VALOR DE CARTERA COINBASE SPOT', color: '#64748b', font: { family: 'JetBrains Mono' } }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#e2e8f0', font: { family: 'JetBrains Mono', weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function getFallbackData() {
+            return {
+                "timestamp": new Date().toISOString(),
+                "total_value_eur": 3303.03,
+                "total_cost_eur": 2967.87,
+                "net_pnl_eur": 335.16,
+                "net_pnl_pct": 11.29,
+                "mtd_pct": 2.40,
+                "dca_info": { "executed_cycles": 3, "total_cycles": 6, "monthly_total_eur": 458.76 },
+                "assets": [
+                    { "symbol": "DOT", "name": "Polkadot", "balance": 1282.6527, "cost_basis": 1.59, "current_price": 0.7479, "current_value_eur": 961.98, "invested_eur": 2043.09, "unrealized_pnl_eur": -1081.11, "unrealized_pnl_pct": -52.92, "dca_monthly": 0, "dca_weight": 0, "staking": true },
+                    { "symbol": "BTC", "name": "Bitcoin", "balance": 0.01266575, "cost_basis": 60021.78, "current_price": 68200.27, "current_value_eur": 864.10, "invested_eur": 760.44, "unrealized_pnl_eur": 103.66, "unrealized_pnl_pct": 13.64, "dca_monthly": 183.50, "dca_weight": 40, "staking": false },
+                    { "symbol": "ETH", "name": "Ethereum", "balance": 0.34608017, "cost_basis": 1777.71, "current_price": 2141.37, "current_value_eur": 741.06, "invested_eur": 615.77, "unrealized_pnl_eur": 125.29, "unrealized_pnl_pct": 20.36, "dca_monthly": 137.63, "dca_weight": 30, "staking": true },
+                    { "symbol": "SOL", "name": "Solana", "balance": 5.84408757, "cost_basis": 82.01, "current_price": 91.37, "current_value_eur": 534.12, "invested_eur": 481.67, "unrealized_pnl_eur": 52.45, "unrealized_pnl_pct": 10.94, "dca_monthly": 91.75, "dca_weight": 20, "staking": true },
+                    { "symbol": "LINK", "name": "Chainlink", "balance": 19.98997167, "cost_basis": 6.89, "current_price": 10.09, "current_value_eur": 201.34, "invested_eur": 137.64, "unrealized_pnl_eur": 63.70, "unrealized_pnl_pct": 46.29, "dca_monthly": 45.88, "dca_weight": 10, "staking": false }
+                ]
+            };
+        }
+
+        window.onload = loadPortfolioData;
+    </script>
+</body>
+</html>
