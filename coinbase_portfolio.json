@@ -1,10 +1,10 @@
 {
-    "timestamp": "2026-09-06 06:13:58 UTC",
-    "total_value_eur": 3393.83,
+    "timestamp": "2026-09-06 12:13:48 UTC",
+    "total_value_eur": 3452.43,
     "total_cost_eur": 4031.87,
-    "net_pnl_eur": -638.05,
-    "net_pnl_pct": -15.83,
-    "mtd_pct": 2.4,
+    "net_pnl_eur": -579.44,
+    "net_pnl_pct": -14.37,
+    "mtd_pct": 2.93,
     "ytd_pct": 14.85,
     "fng_index": {
         "value": 73,
@@ -17,7 +17,7 @@
         "suggested_budget": 389.95
     },
     "dca_info": {
-        "executed_cycles": 3,
+        "executed_cycles": 4,
         "total_cycles": 6,
         "monthly_total_eur": 458.76,
         "next_dca_date": "2026-10-02",
@@ -26,86 +26,86 @@
         "end_date": "2026-11-02"
     },
     "staking_summary": {
-        "total_monthly_est_eur": 15.13,
-        "total_annual_est_eur": 181.56
+        "total_monthly_est_eur": 15.74,
+        "total_annual_est_eur": 188.88
     },
     "projections_nov_2026": {
-        "bear_case_eur": 4941.63,
-        "base_case_eur": 6502.14,
-        "bull_case_eur": 8322.74
+        "bear_case_eur": 4571.18,
+        "base_case_eur": 6014.71,
+        "bull_case_eur": 7698.82
     },
     "assets": [
         {
             "symbol": "DOT",
             "name": "Polkadot",
             "balance": 1282.6527477,
-            "current_price": 0.801145,
+            "current_price": 0.849435,
             "cost_basis": 1.59,
-            "current_value_eur": 1027.59,
+            "current_value_eur": 1089.53,
             "invested_eur": 2039.42,
-            "unrealized_pnl_eur": -1011.83,
-            "unrealized_pnl_pct": -49.61,
+            "unrealized_pnl_eur": -949.89,
+            "unrealized_pnl_pct": -46.58,
             "dca_monthly": 0.0,
             "dca_weight": 0,
             "staking": true,
             "staking_apy": 11.8,
-            "monthly_staking_eur": 10.1,
-            "current_weight_pct": 30.28,
+            "monthly_staking_eur": 10.71,
+            "current_weight_pct": 31.56,
             "advisory": "STAKING PASSIVE: DCA pausado. Generando rendimientos pasivos."
         },
         {
             "symbol": "BTC",
             "name": "Bitcoin",
             "balance": 0.01266575,
-            "current_price": 68838.0,
+            "current_price": 68770.0,
             "cost_basis": 60021.78,
-            "current_value_eur": 871.88,
+            "current_value_eur": 871.02,
             "invested_eur": 760.22,
-            "unrealized_pnl_eur": 111.66,
-            "unrealized_pnl_pct": 14.69,
+            "unrealized_pnl_eur": 110.8,
+            "unrealized_pnl_pct": 14.58,
             "dca_monthly": 183.5,
             "dca_weight": 40,
             "staking": false,
             "staking_apy": 0.0,
             "monthly_staking_eur": 0.0,
-            "current_weight_pct": 25.69,
-            "advisory": "DCA ACTIVE: Acumulación constante cerca de coste medio (60021.78 €)."
+            "current_weight_pct": 25.23,
+            "advisory": "DCA ACTIVE: Acumulación cerca de coste medio (60021.78 €)."
         },
         {
             "symbol": "ETH",
             "name": "Ethereum",
             "balance": 0.34608017,
-            "current_price": 2161.94,
+            "current_price": 2152.09,
             "cost_basis": 1777.71,
-            "current_value_eur": 748.2,
+            "current_value_eur": 744.8,
             "invested_eur": 615.23,
-            "unrealized_pnl_eur": 132.97,
-            "unrealized_pnl_pct": 21.61,
+            "unrealized_pnl_eur": 129.57,
+            "unrealized_pnl_pct": 21.06,
             "dca_monthly": 137.63,
             "dca_weight": 30,
             "staking": true,
             "staking_apy": 3.2,
-            "monthly_staking_eur": 2.0,
-            "current_weight_pct": 22.05,
-            "advisory": "DCA ACTIVE: Acumulación constante cerca de coste medio (1777.71 €)."
+            "monthly_staking_eur": 1.99,
+            "current_weight_pct": 21.57,
+            "advisory": "DCA ACTIVE: Acumulación cerca de coste medio (1777.71 €)."
         },
         {
             "symbol": "SOL",
             "name": "Solana",
             "balance": 5.84408757,
-            "current_price": 91.52,
+            "current_price": 91.68,
             "cost_basis": 82.01,
-            "current_value_eur": 534.85,
+            "current_value_eur": 535.79,
             "invested_eur": 479.27,
-            "unrealized_pnl_eur": 55.58,
-            "unrealized_pnl_pct": 11.6,
+            "unrealized_pnl_eur": 56.51,
+            "unrealized_pnl_pct": 11.79,
             "dca_monthly": 91.75,
             "dca_weight": 20,
             "staking": true,
             "staking_apy": 6.8,
-            "monthly_staking_eur": 3.03,
-            "current_weight_pct": 15.76,
-            "advisory": "DCA ACTIVE: Acumulación constante cerca de coste medio (82.01 €)."
+            "monthly_staking_eur": 3.04,
+            "current_weight_pct": 15.52,
+            "advisory": "DCA ACTIVE: Acumulación cerca de coste medio (82.01 €)."
         },
         {
             "symbol": "LINK",
@@ -122,7 +122,7 @@
             "staking": false,
             "staking_apy": 0.0,
             "monthly_staking_eur": 0.0,
-            "current_weight_pct": 6.23,
+            "current_weight_pct": 6.12,
             "advisory": "HOLD / DCA STANDARD: Rentabilidad (+53.4%). Mantener orden."
         }
     ]
