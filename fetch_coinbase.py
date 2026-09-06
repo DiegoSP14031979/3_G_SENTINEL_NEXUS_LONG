@@ -31,12 +31,11 @@ def fetch_live_coinbase_balances():
     }
 
     if not key_name or not key_secret:
-        print("[INFO] Secrets no configurados. Usando datos de respaldo.")
+        print("[INFO] Secrets no detectados. Utilizando valores de estado base.")
         return fallback_balances
 
     try:
         import jwt
-        # Formatear clave privada para JWT ES256
         formatted_secret = key_secret.replace("\\n", "\n")
         
         now_ts = int(time.time())
@@ -62,10 +61,10 @@ def fetch_live_coinbase_balances():
                 amount = float(acc["balance"]["amount"])
                 if curr in PORTFOLIO_CONFIG["assets"]:
                     balances[curr] = amount
-            print("[SUCCESS] Balances sincronizados vía API Coinbase CDP.")
+            print("[SUCCESS] Balances de Coinbase sincronizados en vivo por API.")
             return balances
     except Exception as e:
-        print(f"[WARN] Error al conectar con la API de Coinbase: {e}")
+        print(f"[WARN] Error consultando API Coinbase: {e}")
 
     return fallback_balances
 
@@ -82,7 +81,7 @@ def fetch_market_prices():
             if cg_id in data and "eur" in data[cg_id]:
                 prices[symbol] = float(data[cg_id]["eur"])
     except Exception as e:
-        print(f"[WARN] Error prices: {e}")
+        print(f"[WARN] Error en feed de precios: {e}")
         prices = {"DOT": 0.801, "BTC": 68877.98, "ETH": 2152.66, "SOL": 91.65, "LINK": 10.18}
 
     try:
