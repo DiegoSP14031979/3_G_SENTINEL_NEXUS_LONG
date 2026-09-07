@@ -23,7 +23,7 @@ def fetch_live_coinbase_balances():
     key_name = os.getenv("COINBASE_API_KEY_NAME")
     key_secret = os.getenv("COINBASE_API_KEY_SECRET")
     
-    # Balances exactos verificados tras la compra en Coinbase
+    # Balances locales de respaldo tras la compra de septiembre
     live_balances = {
         "DOT": 1283.35234468,
         "BTC": 0.01532046,
@@ -37,8 +37,12 @@ def fetch_live_coinbase_balances():
 
     try:
         import jwt
-        formatted_secret = key_secret.replace("\\n", "\n")
         
+        # Formatear la clave secreta al formato PEM si viene como un string continuo
+        formatted_secret = key_secret.replace("\\n", "\n").strip()
+        if not formatted_secret.startswith("-----BEGIN"):
+            formatted_secret = f"-----BEGIN EC PRIVATE KEY-----\n{formatted_secret}\n-----END EC PRIVATE KEY-----"
+
         now_ts = int(time.time())
         token_payload = {
             "iss": "coinbase-cloud",
@@ -63,6 +67,7 @@ def fetch_live_coinbase_balances():
                 if curr in PORTFOLIO_CONFIG["assets"]:
                     balances[curr] = amount
             if len(balances) > 0:
+                print("[SUCCESS] Sincronización API Coinbase exitosa.")
                 return balances
     except Exception as e:
         print(f"[WARN] Fallback a balances locales: {e}")
