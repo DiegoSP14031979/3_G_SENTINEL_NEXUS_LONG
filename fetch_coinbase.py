@@ -4,7 +4,6 @@ import datetime
 import os
 import time
 
-# Configuración con los nuevos balances reales tras la ejecución del DCA de septiembre
 PORTFOLIO_CONFIG = {
     "currency": "EUR",
     "dca_end_date": "2026-11-02",
@@ -23,7 +22,7 @@ def fetch_live_coinbase_balances():
     key_name = os.getenv("COINBASE_API_KEY_NAME")
     key_secret = os.getenv("COINBASE_API_KEY_SECRET")
     
-    # Balances exactos de respaldo tras la compra de septiembre
+    # Balances exactos de respaldo post-DCA septiembre
     live_balances = {
         "DOT": 1283.35234468,
         "BTC": 0.01532046,
@@ -37,19 +36,15 @@ def fetch_live_coinbase_balances():
 
     try:
         import jwt
-        
-        # 1. Limpieza total de comillas, saltos literales y espacios
-        clean_secret = key_secret.replace('"', '').replace("'", "").strip()
-        clean_secret = clean_secret.replace("\\n", "\n").replace("\r", "")
-        
-        # 2. Extracción del cuerpo base64
-        body = clean_secret.replace("-----BEGIN EC PRIVATE KEY-----", "") \
-                          .replace("-----END EC PRIVATE KEY-----", "") \
-                          .replace(" ", "").replace("\n", "").strip()
-        
-        # 3. Reconstrucción estricta en bloques de 64 caracteres
-        chunks = [body[i:i+64] for i in range(0, len(body), 64)]
-        formatted_secret = "-----BEGIN EC PRIVATE KEY-----\n" + "\n".join(chunks) + "\n-----END EC PRIVATE KEY-----\n"
+        from cryptography.hazmat.primitives import serialization
+
+        # Normalizar clave privada
+        secret_clean = key_secret.replace('\\n', '\n').strip()
+        if "-----BEGIN" not in secret_clean:
+            secret_clean = f"-----BEGIN EC PRIVATE KEY-----\n{secret_clean}\n-----END EC PRIVATE KEY-----\n"
+
+        # Cargar la clave privada usando cryptography para validar formato EC/ES256
+        private_key = serialization.load_pem_private_key(secret_clean.encode('utf-8'), password=None)
 
         now_ts = int(time.time())
         token_payload = {
@@ -61,7 +56,7 @@ def fetch_live_coinbase_balances():
         }
         
         headers = {"kid": key_name, "nonce": os.urandom(16).hex()}
-        token = jwt.encode(token_payload, formatted_secret, algorithm="ES256", headers=headers)
+        token = jwt.encode(token_payload, private_key, algorithm="ES256", headers=headers)
 
         req_headers = {"Authorization": f"Bearer {token}"}
         resp = requests.get("https://api.coinbase.com/v2/accounts?limit=100", headers=req_headers, timeout=10)
@@ -75,7 +70,7 @@ def fetch_live_coinbase_balances():
                 if curr in PORTFOLIO_CONFIG["assets"]:
                     balances[curr] = amount
             if len(balances) > 0:
-                print("[SUCCESS] Balances sincronizados vía API Coinbase CDP.")
+                print("[SUCCESS] Balances sincronizados en vivo vía Coinbase CDP API.")
                 return balances
     except Exception as e:
         print(f"[WARN] Fallback a balances locales: {e}")
@@ -223,7 +218,7 @@ def calculate_metrics():
     with open("coinbase_portfolio.json", "w", encoding="utf-8") as f:
         json.dump(portfolio_data, f, indent=4, ensure_ascii=False)
 
-    print("[SUCCESS] Coinbase balances sincronizados tras la compra.")
+    print("[SUCCESS] Archivo de portfolio actualizado.")
 
 if __name__ == "__main__":
     calculate_metrics()
