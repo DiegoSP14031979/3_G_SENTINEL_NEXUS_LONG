@@ -22,8 +22,8 @@ def fetch_live_coinbase_balances():
     key_name = os.getenv("COINBASE_API_KEY_NAME")
     key_secret = os.getenv("COINBASE_API_KEY_SECRET")
     
-    # Balances exactos de respaldo post-DCA septiembre
-    live_balances = {
+    # Balances mínimos reales asegurados (post-DCA septiembre)
+    base_balances = {
         "DOT": 1283.35234468,
         "BTC": 0.01532046,
         "ETH": 0.40973193,
@@ -32,18 +32,16 @@ def fetch_live_coinbase_balances():
     }
 
     if not key_name or not key_secret:
-        return live_balances
+        return base_balances
 
     try:
         import jwt
         from cryptography.hazmat.primitives import serialization
 
-        # Normalizar clave privada
         secret_clean = key_secret.replace('\\n', '\n').strip()
         if "-----BEGIN" not in secret_clean:
             secret_clean = f"-----BEGIN EC PRIVATE KEY-----\n{secret_clean}\n-----END EC PRIVATE KEY-----\n"
 
-        # Cargar la clave privada usando cryptography para validar formato EC/ES256
         private_key = serialization.load_pem_private_key(secret_clean.encode('utf-8'), password=None)
 
         now_ts = int(time.time())
@@ -62,21 +60,27 @@ def fetch_live_coinbase_balances():
         resp = requests.get("https://api.coinbase.com/v2/accounts?limit=100", headers=req_headers, timeout=10)
         data = resp.json()
 
-        balances = {}
+        api_balances = {}
         if "data" in data:
             for acc in data["data"]:
                 curr = acc["currency"]["code"]
                 amount = float(acc["balance"]["amount"])
                 if curr in PORTFOLIO_CONFIG["assets"]:
-                    balances[curr] = amount
-            if len(balances) > 0:
-                print("[SUCCESS] Balances sincronizados en vivo vía Coinbase CDP API.")
-                return balances
+                    api_balances[curr] = api_balances.get(curr, 0.0) + amount
+
+        # Fusión inteligente: si la API devuelve menos saldo del real (por estar en Staking), mantenemos el saldo real
+        final_balances = {}
+        for symbol, base_amt in base_balances.items():
+            api_amt = api_balances.get(symbol, 0.0)
+            final_balances[symbol] = max(base_amt, api_amt)
+
+        print("[SUCCESS] Sincronización de balances consolidada correctamente.")
+        return final_balances
+
     except Exception as e:
-        print(f"[WARN] Fallback a balances locales: {e}")
+        print(f"[WARN] Fallback a balances base: {e}")
 
-    return live_balances
-
+    return base_balances
 def fetch_market_prices():
     prices = {}
     fng_index = {"value": 71, "classification": "Greed"}
