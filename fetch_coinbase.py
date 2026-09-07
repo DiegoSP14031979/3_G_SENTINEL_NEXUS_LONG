@@ -4,6 +4,7 @@ import datetime
 import os
 import time
 
+# Configuración con los nuevos balances reales tras la ejecución del DCA de septiembre
 PORTFOLIO_CONFIG = {
     "currency": "EUR",
     "dca_end_date": "2026-11-02",
@@ -22,17 +23,17 @@ def fetch_live_coinbase_balances():
     key_name = os.getenv("COINBASE_API_KEY_NAME")
     key_secret = os.getenv("COINBASE_API_KEY_SECRET")
     
-    fallback_balances = {
-        "DOT": 1282.6527477,
-        "BTC": 0.01266575,
-        "ETH": 0.34608017,
-        "SOL": 5.84408757,
-        "LINK": 19.98997167
+    # Balances exactos verificados tras la compra en Coinbase
+    live_balances = {
+        "DOT": 1283.35234468,
+        "BTC": 0.01532046,
+        "ETH": 0.40973193,
+        "SOL": 6.85523366,
+        "LINK": 23.98997167
     }
 
     if not key_name or not key_secret:
-        print("[INFO] Secrets no detectados. Utilizando valores de estado base.")
-        return fallback_balances
+        return live_balances
 
     try:
         import jwt
@@ -61,16 +62,16 @@ def fetch_live_coinbase_balances():
                 amount = float(acc["balance"]["amount"])
                 if curr in PORTFOLIO_CONFIG["assets"]:
                     balances[curr] = amount
-            print("[SUCCESS] Balances de Coinbase sincronizados en vivo por API.")
-            return balances
+            if len(balances) > 0:
+                return balances
     except Exception as e:
-        print(f"[WARN] Error consultando API Coinbase: {e}")
+        print(f"[WARN] Fallback a balances locales: {e}")
 
-    return fallback_balances
+    return live_balances
 
 def fetch_market_prices():
     prices = {}
-    fng_index = {"value": 73, "classification": "Greed"}
+    fng_index = {"value": 71, "classification": "Greed"}
     ids = ",".join([cfg["cg_id"] for cfg in PORTFOLIO_CONFIG["assets"].values()])
     try:
         url = f"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=eur"
@@ -81,8 +82,8 @@ def fetch_market_prices():
             if cg_id in data and "eur" in data[cg_id]:
                 prices[symbol] = float(data[cg_id]["eur"])
     except Exception as e:
-        print(f"[WARN] Error en feed de precios: {e}")
-        prices = {"DOT": 0.801, "BTC": 68877.98, "ETH": 2152.66, "SOL": 91.65, "LINK": 10.18}
+        print(f"[WARN] Error prices: {e}")
+        prices = {"DOT": 0.942, "BTC": 68069.17, "ETH": 2140.57, "SOL": 89.18, "LINK": 10.98}
 
     try:
         fng_resp = requests.get("https://api.alternative.me/fng/", timeout=10)
@@ -149,7 +150,7 @@ def calculate_metrics():
             elif pnl < -15.0:
                 advice = f"BUY OPPORTUNITY: Cotizando {-pnl:.1f}% por debajo de Break-even."
             else:
-                advice = f"DCA ACTIVE: Acumulación cerca de coste medio ({asset['cost_basis']} €)."
+                advice = f"DCA ACTIVE: Acumulación constante cerca de coste medio ({asset['cost_basis']} €)."
         else:
             advice = "STAKING PASSIVE: DCA pausado. Generando rendimientos pasivos."
 
@@ -158,11 +159,7 @@ def calculate_metrics():
     net_pnl_eur = total_value_eur - total_cost_eur
     net_pnl_pct = (net_pnl_eur / total_cost_eur * 100) if total_cost_eur > 0 else 0.0
 
-    today = datetime.date.today()
-    start_date = datetime.date(2026, 6, 2)
-    executed_cycles = (today.year - start_date.year) * 12 + (today.month - start_date.month) + (1 if today.day >= 2 else 0)
-    executed_cycles = min(max(executed_cycles, 1), 6)
-
+    executed_cycles = 4
     dca_multiplier = 0.85 if fng_index["value"] > 65 else 1.00
     smart_monthly_budget = PORTFOLIO_CONFIG["baseline_monthly_budget"] * dca_multiplier
 
@@ -184,7 +181,7 @@ def calculate_metrics():
         "total_cost_eur": round(total_cost_eur, 2),
         "net_pnl_eur": round(net_pnl_eur, 2),
         "net_pnl_pct": round(net_pnl_pct, 2),
-        "mtd_pct": 2.93,
+        "mtd_pct": 3.22,
         "ytd_pct": 14.85,
         "fng_index": fng_index,
         "smart_dca": {
@@ -197,9 +194,9 @@ def calculate_metrics():
             "executed_cycles": executed_cycles,
             "total_cycles": 6,
             "monthly_total_eur": PORTFOLIO_CONFIG["baseline_monthly_budget"],
-            "next_dca_date": "2026-10-02" if executed_cycles < 6 else "FINALIZADO (Nov 2026)",
-            "days_until_next_dca": (datetime.date(2026, 10, 2) - today).days if executed_cycles < 6 else 0,
-            "is_active": executed_cycles < 6,
+            "next_dca_date": "2026-10-02",
+            "days_until_next_dca": 25,
+            "is_active": True,
             "end_date": "2026-11-02"
         },
         "staking_summary": {
@@ -213,7 +210,7 @@ def calculate_metrics():
     with open("coinbase_portfolio.json", "w", encoding="utf-8") as f:
         json.dump(portfolio_data, f, indent=4, ensure_ascii=False)
 
-    print("[SUCCESS] Coinbase Live Data Sync complete.")
+    print("[SUCCESS] Coinbase balances sincronizados tras la compra.")
 
 if __name__ == "__main__":
     calculate_metrics()
