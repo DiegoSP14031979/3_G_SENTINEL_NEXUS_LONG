@@ -38,14 +38,18 @@ def fetch_live_coinbase_balances():
     try:
         import jwt
         
-        # Limpiar y reconstruir clave PEM válida para cryptography / PyJWT
-        raw_key = key_secret.replace("-----BEGIN EC PRIVATE KEY-----", "") \
-                            .replace("-----END EC PRIVATE KEY-----", "") \
-                            .replace("\\n", "").replace("\n", "").replace(" ", "").strip()
+        # 1. Limpieza total de comillas, saltos literales y espacios
+        clean_secret = key_secret.replace('"', '').replace("'", "").strip()
+        clean_secret = clean_secret.replace("\\n", "\n").replace("\r", "")
         
-        # Partir el string base64 en líneas de 64 caracteres
-        chunked_key = "\n".join([raw_key[i:i+64] for i in range(0, len(raw_key), 64)])
-        formatted_secret = f"-----BEGIN EC PRIVATE KEY-----\n{chunked_key}\n-----END EC PRIVATE KEY-----\n"
+        # 2. Extracción del cuerpo base64
+        body = clean_secret.replace("-----BEGIN EC PRIVATE KEY-----", "") \
+                          .replace("-----END EC PRIVATE KEY-----", "") \
+                          .replace(" ", "").replace("\n", "").strip()
+        
+        # 3. Reconstrucción estricta en bloques de 64 caracteres
+        chunks = [body[i:i+64] for i in range(0, len(body), 64)]
+        formatted_secret = "-----BEGIN EC PRIVATE KEY-----\n" + "\n".join(chunks) + "\n-----END EC PRIVATE KEY-----\n"
 
         now_ts = int(time.time())
         token_payload = {
