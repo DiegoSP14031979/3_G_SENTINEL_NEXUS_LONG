@@ -23,7 +23,7 @@ def fetch_live_coinbase_balances():
     key_name = os.getenv("COINBASE_API_KEY_NAME")
     key_secret = os.getenv("COINBASE_API_KEY_SECRET")
     
-    # Balances locales de respaldo tras la compra de septiembre
+    # Balances exactos de respaldo tras la compra de septiembre
     live_balances = {
         "DOT": 1283.35234468,
         "BTC": 0.01532046,
@@ -38,10 +38,14 @@ def fetch_live_coinbase_balances():
     try:
         import jwt
         
-        # Formatear la clave secreta al formato PEM si viene como un string continuo
-        formatted_secret = key_secret.replace("\\n", "\n").strip()
-        if not formatted_secret.startswith("-----BEGIN"):
-            formatted_secret = f"-----BEGIN EC PRIVATE KEY-----\n{formatted_secret}\n-----END EC PRIVATE KEY-----"
+        # Limpiar y reconstruir clave PEM válida para cryptography / PyJWT
+        raw_key = key_secret.replace("-----BEGIN EC PRIVATE KEY-----", "") \
+                            .replace("-----END EC PRIVATE KEY-----", "") \
+                            .replace("\\n", "").replace("\n", "").replace(" ", "").strip()
+        
+        # Partir el string base64 en líneas de 64 caracteres
+        chunked_key = "\n".join([raw_key[i:i+64] for i in range(0, len(raw_key), 64)])
+        formatted_secret = f"-----BEGIN EC PRIVATE KEY-----\n{chunked_key}\n-----END EC PRIVATE KEY-----\n"
 
         now_ts = int(time.time())
         token_payload = {
@@ -67,7 +71,7 @@ def fetch_live_coinbase_balances():
                 if curr in PORTFOLIO_CONFIG["assets"]:
                     balances[curr] = amount
             if len(balances) > 0:
-                print("[SUCCESS] Sincronización API Coinbase exitosa.")
+                print("[SUCCESS] Balances sincronizados vía API Coinbase CDP.")
                 return balances
     except Exception as e:
         print(f"[WARN] Fallback a balances locales: {e}")
