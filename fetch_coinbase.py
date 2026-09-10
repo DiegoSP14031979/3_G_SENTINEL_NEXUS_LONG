@@ -68,7 +68,7 @@ def fetch_live_coinbase_balances():
                 if curr in PORTFOLIO_CONFIG["assets"]:
                     api_balances[curr] = api_balances.get(curr, 0.0) + amount
 
-        # Fusión inteligente: si la API devuelve menos saldo del real (por estar en Staking), mantenemos el saldo real
+        # Fusión inteligente: previene desajustes por activos alojados en subcuentas de Staking
         final_balances = {}
         for symbol, base_amt in base_balances.items():
             api_amt = api_balances.get(symbol, 0.0)
@@ -81,9 +81,20 @@ def fetch_live_coinbase_balances():
         print(f"[WARN] Fallback a balances base: {e}")
 
     return base_balances
+
 def fetch_market_prices():
     prices = {}
-    fng_index = {"value": 71, "classification": "Greed"}
+    fng_index = {"value": 69, "classification": "Greed"}
+    
+    # Precios de reserva para prevenir valoraciones en 0.00 € ante caídas de CoinGecko
+    fallback_prices = {
+        "DOT": 1.02,
+        "BTC": 67926.00,
+        "ETH": 2147.98,
+        "SOL": 89.62,
+        "LINK": 10.76
+    }
+    
     ids = ",".join([cfg["cg_id"] for cfg in PORTFOLIO_CONFIG["assets"].values()])
     try:
         url = f"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=eur"
@@ -91,11 +102,18 @@ def fetch_market_prices():
         data = resp.json()
         for symbol, cfg in PORTFOLIO_CONFIG["assets"].items():
             cg_id = cfg["cg_id"]
-            if cg_id in data and "eur" in data[cg_id]:
+            if cg_id in data and "eur" in data[cg_id] and float(data[cg_id]["eur"]) > 0:
                 prices[symbol] = float(data[cg_id]["eur"])
+            else:
+                prices[symbol] = fallback_prices.get(symbol, 0.0)
     except Exception as e:
-        print(f"[WARN] Error prices: {e}")
-        prices = {"DOT": 0.942, "BTC": 68069.17, "ETH": 2140.57, "SOL": 89.18, "LINK": 10.98}
+        print(f"[WARN] Error consultando CoinGecko, aplicando precios de reserva: {e}")
+        prices = fallback_prices
+
+    # Verificación estricta de precios válidos (> 0)
+    for sym, fb_p in fallback_prices.items():
+        if prices.get(sym, 0.0) <= 0:
+            prices[sym] = fb_p
 
     try:
         fng_resp = requests.get("https://api.alternative.me/fng/", timeout=10)
@@ -207,7 +225,7 @@ def calculate_metrics():
             "total_cycles": 6,
             "monthly_total_eur": PORTFOLIO_CONFIG["baseline_monthly_budget"],
             "next_dca_date": "2026-10-02",
-            "days_until_next_dca": 25,
+            "days_until_next_dca": 22,
             "is_active": True,
             "end_date": "2026-11-02"
         },
