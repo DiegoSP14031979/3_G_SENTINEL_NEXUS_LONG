@@ -6,7 +6,7 @@ import time
 
 PORTFOLIO_CONFIG = {
     "currency": "EUR",
-    "dca_end_date": "2026-11-02",
+    "dca_end_date": "2026-10-02",
     "dca_day_of_month": 2,
     "baseline_monthly_budget": 458.76,
     "assets": {
@@ -22,13 +22,13 @@ def fetch_live_coinbase_balances():
     key_name = os.getenv("COINBASE_API_KEY_NAME")
     key_secret = os.getenv("COINBASE_API_KEY_SECRET")
     
-    # Balances mínimos reales asegurados (post-DCA septiembre)
+    # Balances mínimos reales consolidados (post-DCA Doble Octubre 2026)
     base_balances = {
         "DOT": 1283.35234468,
-        "BTC": 0.01532046,
-        "ETH": 0.40973193,
-        "SOL": 6.85523366,
-        "LINK": 23.98997167
+        "BTC": 0.02007830,
+        "ETH": 0.52180271,
+        "SOL": 8.53623366,
+        "LINK": 30.32997167
     }
 
     if not key_name or not key_secret:
@@ -86,13 +86,12 @@ def fetch_market_prices():
     prices = {}
     fng_index = {"value": 69, "classification": "Greed"}
     
-    # Precios de reserva para prevenir valoraciones en 0.00 € ante caídas de CoinGecko
     fallback_prices = {
-        "DOT": 1.02,
-        "BTC": 67926.00,
-        "ETH": 2147.98,
-        "SOL": 89.62,
-        "LINK": 10.76
+        "DOT": 1.10,
+        "BTC": 76723.00,
+        "ETH": 2451.00,
+        "SOL": 108.60,
+        "LINK": 14.38
     }
     
     ids = ",".join([cfg["cg_id"] for cfg in PORTFOLIO_CONFIG["assets"].values()])
@@ -110,7 +109,6 @@ def fetch_market_prices():
         print(f"[WARN] Error consultando CoinGecko, aplicando precios de reserva: {e}")
         prices = fallback_prices
 
-    # Verificación estricta de precios válidos (> 0)
     for sym, fb_p in fallback_prices.items():
         if prices.get(sym, 0.0) <= 0:
             prices[sym] = fb_p
@@ -174,33 +172,25 @@ def calculate_metrics():
         asset["current_weight_pct"] = round(weight_pct, 2)
 
         pnl = asset["unrealized_pnl_pct"]
-        if asset["dca_monthly"] > 0:
-            if pnl > 30.0:
-                advice = f"HOLD / DCA STANDARD: Rentabilidad (+{pnl:.1f}%). Mantener orden."
-            elif pnl < -15.0:
-                advice = f"BUY OPPORTUNITY: Cotizando {-pnl:.1f}% por debajo de Break-even."
-            else:
-                advice = f"DCA ACTIVE: Acumulación constante cerca de coste medio ({asset['cost_basis']} €)."
-        else:
+        if asset["symbol"] == "DOT":
             advice = "STAKING PASSIVE: DCA pausado. Generando rendimientos pasivos."
+        else:
+            advice = f"HOLD & STAKING PASSIVE: Plan de acumulación completado (6/6). Rentabilidad (+{pnl:.1f}%)."
 
         asset["advisory"] = advice
 
     net_pnl_eur = total_value_eur - total_cost_eur
     net_pnl_pct = (net_pnl_eur / total_cost_eur * 100) if total_cost_eur > 0 else 0.0
 
-    executed_cycles = 4
-    dca_multiplier = 0.85 if fng_index["value"] > 65 else 1.00
-    smart_monthly_budget = PORTFOLIO_CONFIG["baseline_monthly_budget"] * dca_multiplier
-
-    remaining_cycles = max(6 - executed_cycles, 0)
-    future_contributions = remaining_cycles * smart_monthly_budget
-    total_projected_cost = total_cost_eur + future_contributions
+    # Plan DCA 100% Finalizado
+    executed_cycles = 6
+    dca_multiplier = 1.00
+    smart_monthly_budget = 0.0
 
     projections = {
-        "bear_case_eur": round(total_projected_cost * 0.95, 2),
-        "base_case_eur": round(total_projected_cost * 1.25, 2),
-        "bull_case_eur": round(total_projected_cost * 1.60, 2)
+        "bear_case_eur": round(total_value_eur * 1.25, 2),
+        "base_case_eur": round(total_value_eur * 2.10, 2),
+        "bull_case_eur": round(total_value_eur * 3.50, 2)
     }
 
     total_monthly_staking = sum(a["monthly_staking_eur"] for a in assets_summary)
@@ -211,23 +201,23 @@ def calculate_metrics():
         "total_cost_eur": round(total_cost_eur, 2),
         "net_pnl_eur": round(net_pnl_eur, 2),
         "net_pnl_pct": round(net_pnl_pct, 2),
-        "mtd_pct": 3.22,
-        "ytd_pct": 14.85,
+        "mtd_pct": 5.40,
+        "ytd_pct": 18.20,
         "fng_index": fng_index,
         "smart_dca": {
             "multiplier": dca_multiplier,
-            "regime": "PRUDENT DCA (85%)" if dca_multiplier < 1.0 else "STANDARD DCA (100%)",
-            "baseline_budget": PORTFOLIO_CONFIG["baseline_monthly_budget"],
-            "suggested_budget": round(smart_monthly_budget, 2)
+            "regime": "PLAN COMPLETED (HOLD & STAKING)",
+            "baseline_budget": 0.0,
+            "suggested_budget": 0.0
         },
         "dca_info": {
-            "executed_cycles": executed_cycles,
+            "executed_cycles": 6,
             "total_cycles": 6,
-            "monthly_total_eur": PORTFOLIO_CONFIG["baseline_monthly_budget"],
-            "next_dca_date": "2026-10-02",
-            "days_until_next_dca": 22,
-            "is_active": True,
-            "end_date": "2026-11-02"
+            "monthly_total_eur": 0.0,
+            "next_dca_date": "PLAN COMPLETED",
+            "days_until_next_dca": 0,
+            "is_active": False,
+            "end_date": "2026-10-02"
         },
         "staking_summary": {
             "total_monthly_est_eur": round(total_monthly_staking, 2),
