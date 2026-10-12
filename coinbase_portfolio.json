@@ -1,9 +1,9 @@
 {
-    "timestamp": "2026-10-12 04:41:25 UTC",
-    "total_value_eur": 5379.39,
+    "timestamp": "2026-10-12 14:36:45 UTC",
+    "total_value_eur": 5328.63,
     "total_cost_eur": 5094.05,
-    "net_pnl_eur": 285.34,
-    "net_pnl_pct": 5.6,
+    "net_pnl_eur": 234.57,
+    "net_pnl_pct": 4.6,
     "mtd_pct": 5.4,
     "ytd_pct": 18.2,
     "fng_index": {
@@ -26,13 +26,13 @@
         "end_date": "2026-10-02"
     },
     "staking_summary": {
-        "total_monthly_est_eur": 22.34,
-        "total_annual_est_eur": 268.08
+        "total_monthly_est_eur": 22.2,
+        "total_annual_est_eur": 266.4
     },
     "projections_nov_2026": {
-        "bear_case_eur": 6724.24,
-        "base_case_eur": 11296.72,
-        "bull_case_eur": 18827.87
+        "bear_case_eur": 6660.78,
+        "base_case_eur": 11190.12,
+        "bull_case_eur": 18650.19
     },
     "assets": [
         {
@@ -50,80 +50,80 @@
             "staking": true,
             "staking_apy": 11.8,
             "monthly_staking_eur": 14.29,
-            "current_weight_pct": 27.01,
+            "current_weight_pct": 27.27,
             "advisory": "STAKING PASSIVE: DCA pausado. Generando rendimientos pasivos."
         },
         {
             "symbol": "BTC",
             "name": "Bitcoin",
             "balance": 0.02007936,
-            "current_price": 74828.0,
+            "current_price": 74131.0,
             "cost_basis": 60021.78,
-            "current_value_eur": 1502.5,
+            "current_value_eur": 1488.5,
             "invested_eur": 1205.2,
-            "unrealized_pnl_eur": 297.3,
-            "unrealized_pnl_pct": 24.67,
+            "unrealized_pnl_eur": 283.3,
+            "unrealized_pnl_pct": 23.51,
             "dca_monthly": 183.5,
             "dca_weight": 40,
             "staking": false,
             "staking_apy": 0.0,
             "monthly_staking_eur": 0.0,
             "current_weight_pct": 27.93,
-            "advisory": "HOLD & STAKING PASSIVE: Plan de acumulación completado (6/6). Rentabilidad (+24.7%)."
+            "advisory": "HOLD & STAKING PASSIVE: Plan de acumulación completado (6/6). Rentabilidad (+23.5%)."
         },
         {
             "symbol": "ETH",
             "name": "Ethereum",
             "balance": 0.52211813,
-            "current_price": 2282.77,
+            "current_price": 2264.23,
             "cost_basis": 1777.71,
-            "current_value_eur": 1191.88,
+            "current_value_eur": 1182.2,
             "invested_eur": 928.17,
-            "unrealized_pnl_eur": 263.7,
-            "unrealized_pnl_pct": 28.41,
+            "unrealized_pnl_eur": 254.02,
+            "unrealized_pnl_pct": 27.37,
             "dca_monthly": 137.63,
             "dca_weight": 30,
             "staking": true,
             "staking_apy": 3.2,
-            "monthly_staking_eur": 3.18,
-            "current_weight_pct": 22.16,
-            "advisory": "HOLD & STAKING PASSIVE: Plan de acumulación completado (6/6). Rentabilidad (+28.4%)."
+            "monthly_staking_eur": 3.15,
+            "current_weight_pct": 22.19,
+            "advisory": "HOLD & STAKING PASSIVE: Plan de acumulación completado (6/6). Rentabilidad (+27.4%)."
         },
         {
             "symbol": "SOL",
             "name": "Solana",
             "balance": 8.558004165,
-            "current_price": 100.33,
+            "current_price": 98.11,
             "cost_basis": 82.01,
-            "current_value_eur": 858.62,
+            "current_value_eur": 839.63,
             "invested_eur": 701.84,
-            "unrealized_pnl_eur": 156.78,
-            "unrealized_pnl_pct": 22.34,
+            "unrealized_pnl_eur": 137.78,
+            "unrealized_pnl_pct": 19.63,
             "dca_monthly": 91.75,
             "dca_weight": 20,
             "staking": true,
             "staking_apy": 6.8,
-            "monthly_staking_eur": 4.87,
-            "current_weight_pct": 15.96,
-            "advisory": "HOLD & STAKING PASSIVE: Plan de acumulación completado (6/6). Rentabilidad (+22.3%)."
+            "monthly_staking_eur": 4.76,
+            "current_weight_pct": 15.76,
+            "advisory": "HOLD & STAKING PASSIVE: Plan de acumulación completado (6/6). Rentabilidad (+19.6%)."
         },
         {
             "symbol": "LINK",
             "name": "Chainlink",
             "balance": 31.11997167,
-            "current_price": 12.0,
+            "current_price": 11.74,
             "cost_basis": 6.89,
-            "current_value_eur": 373.44,
+            "current_value_eur": 365.35,
             "invested_eur": 214.42,
-            "unrealized_pnl_eur": 159.02,
-            "unrealized_pnl_pct": 74.17,
+            "unrealized_pnl_eur": 150.93,
+            "unrealized_pnl_pct": 70.39,
             "dca_monthly": 45.88,
             "dca_weight": 10,
             "staking": false,
             "staking_apy": 0.0,
             "monthly_staking_eur": 0.0,
-            "current_weight_pct": 6.94,
-            "advisory": "HOLD & STAKING PASSIVE: Plan de acumulación completado (6/6). Rentabilidad (+74.2%)."
+            "current_weight_pct": 6.86,
+            "advisory": "HOLD & STAKING PASSIVE: Plan de acumulación completado (6/6). Rentabilidad (+70.4%)."
         }
     ]
 }
